@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-const LoginForm = ({ onSubmit }) => {
+const RegisterForm = ({ onSubmit }) => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -12,6 +13,17 @@ const LoginForm = ({ onSubmit }) => {
       }}
       className="form-group"
     >
+
+      <div className="form-group">
+        <input
+          type="name"
+          placeholder="Your nickname"
+          className="form-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
       <div className="form-group">
         <input
           type="email"
@@ -21,6 +33,7 @@ const LoginForm = ({ onSubmit }) => {
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
+
       <div className="form-group">
         <input
           type="password"
@@ -30,9 +43,10 @@ const LoginForm = ({ onSubmit }) => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <button type="submit" className="login-btn">Login</button>
+
+      <button type="submit" className="register-btn">Register</button>
     </form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
