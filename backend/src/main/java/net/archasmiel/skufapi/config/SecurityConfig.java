@@ -1,10 +1,7 @@
 package net.archasmiel.skufapi.config;
 
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import net.archasmiel.skufapi.security.SkufSecurityArgumentResolver;
+import net.archasmiel.skufapi.security.SecurityArgumentResolver;
 import net.archasmiel.skufapi.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,65 +16,62 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.List;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final JwtAuthFilter jwtAuthFilter;
-  private final UserService userService;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final UserService userService;
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
-        .cors(
-            cors ->
-                cors.configurationSource(
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(
                     request -> {
-                      var corsConfiguration = new CorsConfiguration();
-                      corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
-                      corsConfiguration.setAllowedMethods(
-                          List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                      corsConfiguration.setAllowedHeaders(List.of("*"));
-                      corsConfiguration.setAllowCredentials(true);
-                      return corsConfiguration;
+                        var corsConfiguration = new CorsConfiguration();
+                        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+                        corsConfiguration.setAllowedMethods(
+                                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        corsConfiguration.setAllowedHeaders(List.of("*"));
+                        corsConfiguration.setAllowCredentials(true);
+                        return corsConfiguration;
                     }))
-        .authorizeHttpRequests(
-            authorize ->
-                authorize
-                    .requestMatchers("/api/auth/google", "/api/auth/login", "/api/auth/signup",
-                        "/api/auth/me", "/api/auth/logout")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-        .authenticationProvider(authenticationProvider())
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/auth/google", "/api/auth/login", "/api/auth/signup", "/api/auth/me", "/api/auth/logout").permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-    return http.build();
-  }
+        return http.build();
+    }
 
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-      throws Exception {
-    return config.getAuthenticationManager();
-  }
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-  @Bean
-  public DaoAuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(userService.userDetailsService());
-    authProvider.setPasswordEncoder(passwordEncoder());
-    return authProvider;
-  }
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userService.userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public SkufSecurityArgumentResolver skufSecurityArgumentResolver() {
-    return new SkufSecurityArgumentResolver();
-  }
+    @Bean
+    public SecurityArgumentResolver securityArgumentResolver() {
+        return new SecurityArgumentResolver();
+    }
 }
