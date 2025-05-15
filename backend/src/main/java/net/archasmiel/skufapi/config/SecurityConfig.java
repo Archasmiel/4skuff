@@ -42,7 +42,7 @@ public class SecurityConfig {
                         return corsConfiguration;
                     }))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/google", "/api/auth/login", "/api/auth/signup", "/api/auth/me", "/api/auth/logout").permitAll()
+                        .requestMatchers("/api/auth/google", "/api/auth/login", "/api/auth/register", "/api/auth/me", "/api/auth/logout").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
