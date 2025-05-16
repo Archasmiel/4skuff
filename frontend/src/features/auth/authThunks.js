@@ -1,38 +1,47 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import * as authApi from '../../api/authApi';
+import { jwtDecode } from 'jwt-decode';
 
 export const loginThunk = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authApi.login(credentials);
-      const token = response.data.token;
-
-      const jwt_decode = (await import('jwt-decode')).default;
-      const user = jwt_decode(token);
-
+      const token = response.data.jwtToken;
+      
+      if (!token) {
+        throw new Error('No token received from server');
+      }
+      
+      const user = jwtDecode(token);
       return { token, user };
     } catch (error) {
       console.error('Login error:', error);
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      return rejectWithValue(error.response?.data?.message || error.message || 'Login failed');
     }
   }
 );
 
 export const registerThunk = createAsyncThunk(
-  'auth/register',
+  'auth/signup',
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authApi.register(userData);
-      const token = response.data.token;
+      const token = response.data.jwtToken;
 
-      const jwt_decode = (await import('jwt-decode')).default;
-      const user = jwt_decode(token);
+      if (!token) {
+        throw new Error('No token received after registration');
+      }
 
+      const user = jwtDecode(token);
       return { token, user };
     } catch (error) {
       console.error('Registration error:', error);
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+      return rejectWithValue(
+        error.response?.data?.message || 
+        error.message || 
+        'Registration failed'
+      );
     }
   }
 );
