@@ -22,3 +22,9 @@ export const register = (credentials) => API.post('signup', {
   email: credentials.email,
   password: credentials.password
 });
+
+export const logout = (token) => API.get('logout', {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
