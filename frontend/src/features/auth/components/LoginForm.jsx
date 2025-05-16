@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 
 const LoginForm = ({ onSubmit }) => {
-  const [email, setEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ email, password });
+        onSubmit({ userName, password });
       }}
       className="form-group"
     >
       <div className="form-group">
         <input
-          type="email"
-          placeholder="Email"
+          type="name"
+          placeholder="Nickname"
           className="form-input"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
         />
       </div>
       <div className="form-group">
