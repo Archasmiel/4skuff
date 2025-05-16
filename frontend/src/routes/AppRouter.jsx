@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthPage from '../features/auth/pages/AuthPage';
+import DashboardPage from '../features/auth/pages/DashboardPage';
 import PrivateRoute from './PrivateRoute';
-
-const Dashboard = () => <div>Welcome</div>;
+import { Navigate } from 'react-router-dom';
 
 const AppRouter = () => (
   <Router>
@@ -13,10 +13,11 @@ const AppRouter = () => (
         path="/dashboard"
         element={
           <PrivateRoute>
-            <Dashboard />
+            <DashboardPage />
           </PrivateRoute>
         }
       />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   </Router>
 );
