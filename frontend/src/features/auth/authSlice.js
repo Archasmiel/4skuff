@@ -15,6 +15,8 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null;
       state.user = null;
+      state.status = 'idle';
+      state.error = null;
       localStorage.removeItem('token');
     },
   },
@@ -44,8 +46,9 @@ const authSlice = createSlice({
       })
       .addCase(registerThunk.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
-      });
+        state.error = action.payload || 'Registration failed';
+      })
+
   },
 });
 
