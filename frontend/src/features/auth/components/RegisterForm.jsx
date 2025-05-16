@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const RegisterForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -9,18 +9,18 @@ const RegisterForm = ({ onSubmit }) => {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ email, password });
+        onSubmit({ username, email, password });
       }}
       className="form-group"
     >
-
       <div className="form-group">
         <input
           type="name"
           placeholder="Your nickname"
           className="form-input"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
         />
       </div>
 
@@ -31,6 +31,7 @@ const RegisterForm = ({ onSubmit }) => {
           className="form-input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
       </div>
 
@@ -41,6 +42,8 @@ const RegisterForm = ({ onSubmit }) => {
           className="form-input"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength="4"
         />
       </div>
 
