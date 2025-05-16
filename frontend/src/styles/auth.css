@@ -12,6 +12,7 @@
 }
 
 .auth-title {
+  font-family: "Inter", sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
@@ -39,8 +40,8 @@ input[type="password"] {
   color: #333;
 }
 
-input[type="email"]:focus,
-input[type="name"]:focus,
+input[type="email"]:focus, 
+input[type="name"]:focus, 
 input[type="password"]:focus {
   border-color: #454545;
   outline: none;
