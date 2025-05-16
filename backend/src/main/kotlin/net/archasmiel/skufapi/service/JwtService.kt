@@ -1,0 +1,132 @@
+package net.archasmiel.skufapi.service
+
+import net.archasmiel.skufapi.domain.model.User
+import net.archasmiel.skufapi.exception.token.JwtTokenException
+import net.archasmiel.skufapi.exception.security.RSAKeyException
+import org.jose4j.jws.AlgorithmIdentifiers
+import org.jose4j.jws.JsonWebSignature
+import org.jose4j.jwt.JwtClaims
+import org.jose4j.jwt.NumericDate
+import org.jose4j.jwt.consumer.InvalidJwtException
+import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.ClassPathResource
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.stereotype.Service
+import java.io.IOException
+import java.security.KeyFactory
+import java.security.NoSuchAlgorithmException
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.spec.InvalidKeySpecException
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
+import java.util.*
+
+@Service
+class JwtService(
+    @Value("\${jwt.token.expiration}")
+    private val jwtExpirationMs: Long
+) {
+    private var privateKey: PrivateKey? = null
+    private var publicKey: PublicKey? = null
+
+    @Throws(RSAKeyException::class)
+    private fun getSigningKey(): PrivateKey {
+        return privateKey ?: try {
+            ClassPathResource("/keys/private.pem").inputStream.use { keyStream ->
+                val privateKeyContent = keyStream.readAllBytes()
+                    .decodeToString()
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replace("\\s".toRegex(), "")
+
+                val keyBytes = Base64.getDecoder().decode(privateKeyContent)
+                val spec = PKCS8EncodedKeySpec(keyBytes)
+                KeyFactory.getInstance("RSA").generatePrivate(spec).also {
+                    privateKey = it
+                }
+            }
+        } catch (e: InvalidKeySpecException) {
+            throw RSAKeyException("Invalid private key")
+        } catch (e: NoSuchAlgorithmException) {
+            throw RSAKeyException("Algorithm not found")
+        } catch (e: IOException) {
+            throw RSAKeyException("Failed to read private key")
+        }
+    }
+
+    @Throws(RSAKeyException::class)
+    private fun getVerificationKey(): PublicKey {
+        return publicKey ?: try {
+            ClassPathResource("/keys/public.pem").inputStream.use { keyStream ->
+                val publicKeyContent = keyStream.readAllBytes()
+                    .decodeToString()
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replace("\\s".toRegex(), "")
+
+                val keyBytes = Base64.getDecoder().decode(publicKeyContent)
+                val spec = X509EncodedKeySpec(keyBytes)
+                KeyFactory.getInstance("RSA").generatePublic(spec).also {
+                    publicKey = it
+                }
+            }
+        } catch (e: InvalidKeySpecException) {
+            throw RSAKeyException("Invalid public key")
+        } catch (e: NoSuchAlgorithmException) {
+            throw RSAKeyException("Algorithm not found")
+        } catch (e: IOException) {
+            throw RSAKeyException("Failed to read public key")
+        }
+    }
+
+    fun generateToken(userDetails: UserDetails): String {
+        val claims = JwtClaims().apply {
+            subject = userDetails.username
+            issuedAt = NumericDate.now()
+            expirationTime = NumericDate.fromMilliseconds(System.currentTimeMillis() + jwtExpirationMs)
+
+            if (userDetails is User) {
+                setClaim("id", userDetails.id)
+                setClaim("email", userDetails.email)
+                setClaim("role", userDetails.role)
+            }
+        }
+
+        return JsonWebSignature().apply {
+            payload = claims.toJson()
+            key = getSigningKey()
+            algorithmHeaderValue = AlgorithmIdentifiers.RSA_USING_SHA256
+        }.compactSerialization ?: throw RuntimeException("Failed to generate JWT")
+    }
+
+    @Throws(InvalidJwtException::class)
+    fun extractAllClaims(token: String): JwtClaims {
+
+        return try {
+            JwtConsumerBuilder()
+            .setVerificationKey(getVerificationKey())
+            .build()
+            .processToClaims(token)
+        } catch (e: Exception) {
+            throw JwtTokenException("Invalid token ${e.message}")
+        }
+    }
+
+    private fun extractExpiration(token: String): NumericDate {
+        return extractAllClaims(token).expirationTime
+    }
+
+    private fun isTokenExpired(token: String): Boolean {
+        return extractExpiration(token).isBefore(NumericDate.now())
+    }
+
+    fun extractUsername(token: String): String {
+        return extractAllClaims(token).subject
+    }
+
+    fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+        return extractUsername(token) == userDetails.username && !isTokenExpired(token)
+    }
+}
