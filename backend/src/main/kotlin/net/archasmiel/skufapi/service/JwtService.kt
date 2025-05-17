@@ -2,12 +2,11 @@ package net.archasmiel.skufapi.service
 
 import net.archasmiel.skufapi.domain.model.User
 import net.archasmiel.skufapi.exception.token.JwtTokenException
-import net.archasmiel.skufapi.exception.security.RSAKeyException
+import net.archasmiel.skufapi.exception.token.RsaKeyException
 import org.jose4j.jws.AlgorithmIdentifiers
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.NumericDate
-import org.jose4j.jwt.consumer.InvalidJwtException
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
@@ -31,7 +30,7 @@ class JwtService(
     private var privateKey: PrivateKey? = null
     private var publicKey: PublicKey? = null
 
-    @Throws(RSAKeyException::class)
+    @Throws(RsaKeyException::class)
     private fun getSigningKey(): PrivateKey {
         return privateKey ?: try {
             ClassPathResource("/keys/private.pem").inputStream.use { keyStream ->
@@ -48,15 +47,15 @@ class JwtService(
                 }
             }
         } catch (e: InvalidKeySpecException) {
-            throw RSAKeyException("Invalid private key")
+            throw RsaKeyException("Invalid private key")
         } catch (e: NoSuchAlgorithmException) {
-            throw RSAKeyException("Algorithm not found")
+            throw RsaKeyException("Algorithm not found")
         } catch (e: IOException) {
-            throw RSAKeyException("Failed to read private key")
+            throw RsaKeyException("Failed to read private key")
         }
     }
 
-    @Throws(RSAKeyException::class)
+    @Throws(RsaKeyException::class)
     private fun getVerificationKey(): PublicKey {
         return publicKey ?: try {
             ClassPathResource("/keys/public.pem").inputStream.use { keyStream ->
@@ -68,24 +67,25 @@ class JwtService(
 
                 val keyBytes = Base64.getDecoder().decode(publicKeyContent)
                 val spec = X509EncodedKeySpec(keyBytes)
-                KeyFactory.getInstance("RSA").generatePublic(spec).also {
-                    publicKey = it
-                }
+                KeyFactory.getInstance("RSA").generatePublic(spec).also { publicKey = it }
             }
         } catch (e: InvalidKeySpecException) {
-            throw RSAKeyException("Invalid public key")
+            throw RsaKeyException("Invalid public key")
         } catch (e: NoSuchAlgorithmException) {
-            throw RSAKeyException("Algorithm not found")
+            throw RsaKeyException("Algorithm not found")
         } catch (e: IOException) {
-            throw RSAKeyException("Failed to read public key")
+            throw RsaKeyException("Failed to read public key")
         }
     }
 
+    @Throws(JwtTokenException::class)
     fun generateToken(userDetails: UserDetails): String {
         val claims = JwtClaims().apply {
             subject = userDetails.username
             issuedAt = NumericDate.now()
-            expirationTime = NumericDate.fromMilliseconds(System.currentTimeMillis() + jwtExpirationMs)
+            expirationTime = NumericDate.fromMilliseconds(
+                System.currentTimeMillis() + jwtExpirationMs
+            )
 
             if (userDetails is User) {
                 setClaim("id", userDetails.id)
@@ -98,34 +98,37 @@ class JwtService(
             payload = claims.toJson()
             key = getSigningKey()
             algorithmHeaderValue = AlgorithmIdentifiers.RSA_USING_SHA256
-        }.compactSerialization ?: throw RuntimeException("Failed to generate JWT")
+        }.compactSerialization ?: throw JwtTokenException("Failed to generate JWT")
     }
 
-    @Throws(InvalidJwtException::class)
+    @Throws(JwtTokenException::class)
     fun extractAllClaims(token: String): JwtClaims {
-
         return try {
             JwtConsumerBuilder()
-            .setVerificationKey(getVerificationKey())
-            .build()
-            .processToClaims(token)
+                .setVerificationKey(getVerificationKey())
+                .build()
+                .processToClaims(token)
         } catch (e: Exception) {
-            throw JwtTokenException("Invalid token ${e.message}")
+            throw JwtTokenException("Could not generate token")
         }
     }
 
+    @Throws(JwtTokenException::class)
     private fun extractExpiration(token: String): NumericDate {
         return extractAllClaims(token).expirationTime
     }
 
+    @Throws(JwtTokenException::class)
     private fun isTokenExpired(token: String): Boolean {
         return extractExpiration(token).isBefore(NumericDate.now())
     }
 
+    @Throws(JwtTokenException::class)
     fun extractUsername(token: String): String {
         return extractAllClaims(token).subject
     }
 
+    @Throws(JwtTokenException::class)
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         return extractUsername(token) == userDetails.username && !isTokenExpired(token)
     }

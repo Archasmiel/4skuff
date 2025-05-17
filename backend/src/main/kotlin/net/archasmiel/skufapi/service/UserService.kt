@@ -2,9 +2,8 @@ package net.archasmiel.skufapi.service
 
 import net.archasmiel.skufapi.domain.model.User
 import net.archasmiel.skufapi.domain.repository.UserRepository
-import net.archasmiel.skufapi.exception.user.EmailNotFoundException
-import net.archasmiel.skufapi.exception.user.UserExistsException
-import net.archasmiel.skufapi.exception.user.UsernameNotFoundException
+import net.archasmiel.skufapi.exception.user.ResourceNotFoundException
+import net.archasmiel.skufapi.exception.user.UserExistException
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 
@@ -18,13 +17,14 @@ class UserService(
 
     fun save(user: User): User = repository.save(user)
 
+    @Throws(UserExistException::class)
     fun create(user: User): User {
         when {
             repository.existsByUserName(user.userName) ->
-                throw UserExistsException(user.userName, false)
+                throw UserExistException(user.userName, false)
 
             repository.existsByEmail(user.email) ->
-                throw UserExistsException(user.email, true)
+                throw UserExistException(user.email, true)
         }
         return save(user)
     }
@@ -45,11 +45,13 @@ class UserService(
         repository.findByEmailAndGoogleUser(email, true)
             .orElseGet { null }
 
+    @Throws(ResourceNotFoundException::class)
     fun getByUsername(username: String): User =
         repository.findByUserName(username)
-            .orElseThrow { UsernameNotFoundException(username) }
+            .orElseThrow { ResourceNotFoundException("username", username) }
 
+    @Throws(ResourceNotFoundException::class)
     fun getByEmail(email: String): User =
         repository.findByEmail(email)
-            .orElseThrow { EmailNotFoundException(email) }
+            .orElseThrow { ResourceNotFoundException("email", email) }
 }

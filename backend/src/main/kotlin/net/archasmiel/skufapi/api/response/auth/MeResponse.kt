@@ -8,6 +8,6 @@ data class MeResponse(
     @field:Schema(description = "Username", example = "john_doe")
     val username: String,
 
-    @field:Schema(description = "User roles", example = "ROLE_USER,ROLE_ADMIN")
-    val roles: String
+    @field:Schema(description = "Some details, not exactly UserDetails", example = "User is logged in")
+    val details: String
 ) : ApiResponse

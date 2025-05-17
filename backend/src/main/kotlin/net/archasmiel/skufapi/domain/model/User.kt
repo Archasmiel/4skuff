@@ -1,10 +1,13 @@
 package net.archasmiel.skufapi.domain.model
 
 import jakarta.persistence.*
+import net.archasmiel.skufapi.api.request.auth.RegisterRequest
 import net.archasmiel.skufapi.domain.enums.Role
+import net.archasmiel.skufapi.util.UUIDGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
 @Table(name = "users")
@@ -32,6 +35,37 @@ data class User(
     val googleUser: Boolean = false
 
 ) : UserDetails {
+
+    companion object {
+        fun fromGoogleEmail(email: String,
+                            passwordEncoder: PasswordEncoder,
+                            uuidGenerator: UUIDGenerator
+        ): User {
+            return User(
+                id = null,
+                userName = uuidGenerator.username(),
+                email = email,
+                passWord = passwordEncoder.encode(uuidGenerator.password()),
+                role = Role.ROLE_USER,
+                googleUser = true
+            )
+        }
+
+        fun fromRegisterUser(request: RegisterRequest,
+                             passwordEncoder: PasswordEncoder
+        ): User {
+            return User(
+                id = null,
+                userName = request.username,
+                email = request.email,
+                passWord = passwordEncoder.encode(request.password),
+                role = Role.ROLE_USER,
+                googleUser = false
+            )
+        }
+    }
+
+
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return listOf(SimpleGrantedAuthority(role.name))

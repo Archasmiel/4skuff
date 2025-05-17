@@ -2,9 +2,9 @@ package net.archasmiel.skufapi.service
 
 import net.archasmiel.skufapi.api.request.auth.RegisterRequest
 import net.archasmiel.skufapi.api.response.auth.JwtAuthResponse
-import net.archasmiel.skufapi.domain.enums.Role
 import net.archasmiel.skufapi.domain.model.User
-import net.archasmiel.skufapi.exception.user.UserExistsException
+import net.archasmiel.skufapi.exception.token.JwtTokenException
+import net.archasmiel.skufapi.exception.user.UserExistException
 import net.archasmiel.skufapi.util.UUIDGenerator
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -17,23 +17,18 @@ class RegistrationService(
     private val jwtService: JwtService
 ) {
 
+    @Throws(JwtTokenException::class, UserExistException::class)
     fun signUp(request: RegisterRequest): JwtAuthResponse {
         when {
             userService.hasUserWithUsername(request.username) ->
-                throw UserExistsException(request.username, false)
+                throw UserExistException(request.username, false)
+
             userService.hasUserWithEmail(request.email) ->
-                throw UserExistsException(request.email, true)
+                throw UserExistException(request.email, true)
         }
 
-        val password = passwordEncoder.encode(request.password)
-        val user = User(
-            null,
-            request.username,
-            request.email,
-            password,
-            Role.ROLE_USER,
-            false
-        )
+        val user = User.fromRegisterUser(
+            request, passwordEncoder)
 
         userService.create(user)
 
@@ -41,22 +36,10 @@ class RegistrationService(
         return JwtAuthResponse(token)
     }
 
+    @Throws(JwtTokenException::class, UserExistException::class)
     fun signUp(googleEmail: String): JwtAuthResponse {
-        when {
-            userService.hasUserWithEmail(googleEmail) ->
-                throw UserExistsException(googleEmail, true)
-        }
-
-        val password = passwordEncoder.encode(uuidGenerator.password())
-
-        val user = User(
-            null,
-            uuidGenerator.username(),
-            googleEmail,
-            password,
-            Role.ROLE_USER,
-            true
-        )
+        val user = User.fromGoogleEmail(
+            googleEmail, passwordEncoder, uuidGenerator)
 
         userService.create(user)
 

@@ -1,8 +1,10 @@
 package net.archasmiel.skufapi.exception.token
 
-class JwtTokenException: Exception {
+import net.archasmiel.skufapi.exception.ApiException
 
-    constructor(message: String):
-            super("JWT token exception: $message")
-
-}
+class JwtTokenException(
+    msg: String = "JWT token error"
+) : ApiException(
+    "INVALID_JWT_TOKEN",
+    msg
+)

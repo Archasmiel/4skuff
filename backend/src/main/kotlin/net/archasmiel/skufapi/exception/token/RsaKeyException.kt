@@ -2,9 +2,9 @@ package net.archasmiel.skufapi.exception.token
 
 import net.archasmiel.skufapi.exception.ApiException
 
-class GoogleTokenException(
-    msg: String = "Google token error"
+class RsaKeyException(
+    msg: String = "RSA key fatal error"
 ) : ApiException(
-    "INVALID_GOOGLE_TOKEN",
+    "RSA_KEY_EXCEPTION",
     msg
 )

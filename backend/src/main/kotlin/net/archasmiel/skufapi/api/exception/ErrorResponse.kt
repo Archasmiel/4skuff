@@ -5,9 +5,9 @@ import net.archasmiel.skufapi.api.response.ApiResponse
 
 @Schema(description = "Response for error")
 data class ErrorResponse(
-    @field:Schema(description = "Error", example = "GOOGLE_AUTH_FAILED")
-    val error: String,
+    @field:Schema(description = "Error code", example = "GOOGLE_AUTH_FAILED")
+    val code: String,
 
-    @field:Schema(description = "Message", example = "This error means...")
-    val message: String?
+    @field:Schema(description = "Message string", example = "This error means...")
+    val message: String
 ) : ApiResponse

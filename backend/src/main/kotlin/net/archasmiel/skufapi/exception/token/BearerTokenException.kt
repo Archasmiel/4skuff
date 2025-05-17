@@ -1,8 +1,10 @@
 package net.archasmiel.skufapi.exception.token
 
-class BearerTokenException: Exception {
+import net.archasmiel.skufapi.exception.ApiException
 
-    constructor(message: String):
-            super("Invalid bearer token: $message")
-
-}
+class BearerTokenException(
+    msg: String = "Bearer token error"
+) : ApiException(
+    "INVALID_BEARER_TOKEN",
+    msg
+)
