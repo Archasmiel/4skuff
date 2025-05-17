@@ -36,6 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
+### Kotlin ###
+.kotlin
+
 /src/main/resources/.env
 /src/main/resources/keys/
 /logs/
