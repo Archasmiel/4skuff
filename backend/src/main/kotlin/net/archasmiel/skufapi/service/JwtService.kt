@@ -25,7 +25,10 @@ import java.util.*
 @Service
 class JwtService(
     @Value("\${jwt.token.expiration}")
-    private val jwtExpirationMs: Long
+    private val jwtExpirationMs: Long,
+
+    @Value("\${jwt.keys.path}")
+    private val keyPath: String
 ) {
     private var privateKey: PrivateKey? = null
     private var publicKey: PublicKey? = null
@@ -33,7 +36,7 @@ class JwtService(
     @Throws(RsaKeyException::class)
     private fun getSigningKey(): PrivateKey {
         return privateKey ?: try {
-            ClassPathResource("/keys/private.pem").inputStream.use { keyStream ->
+            ClassPathResource("$keyPath/private.pem").inputStream.use { keyStream ->
                 val privateKeyContent = keyStream.readAllBytes()
                     .decodeToString()
                     .replace("-----BEGIN PRIVATE KEY-----", "")
@@ -58,7 +61,7 @@ class JwtService(
     @Throws(RsaKeyException::class)
     private fun getVerificationKey(): PublicKey {
         return publicKey ?: try {
-            ClassPathResource("/keys/public.pem").inputStream.use { keyStream ->
+            ClassPathResource("$keyPath/public.pem").inputStream.use { keyStream ->
                 val publicKeyContent = keyStream.readAllBytes()
                     .decodeToString()
                     .replace("-----BEGIN PUBLIC KEY-----", "")
