@@ -1,4 +1,4 @@
-package net.archasmiel.skufapi.security
+package net.archasmiel.skufapi.config.security
 
 import org.springframework.core.MethodParameter
 import org.springframework.security.core.context.SecurityContextHolder

@@ -1,14 +1,14 @@
-package net.archasmiel.skufapi.exception
+package net.archasmiel.skufapi.api.exception
 
-import net.archasmiel.skufapi.api.exception.ErrorResponse
-import net.archasmiel.skufapi.exception.auth.AuthenticationException
-import net.archasmiel.skufapi.exception.token.RsaKeyException
-import net.archasmiel.skufapi.exception.token.BearerTokenException
-import net.archasmiel.skufapi.exception.token.GoogleTokenException
-import net.archasmiel.skufapi.exception.token.JwtTokenException
-import net.archasmiel.skufapi.exception.user.GoogleUserExistException
-import net.archasmiel.skufapi.exception.user.ResourceNotFoundException
-import net.archasmiel.skufapi.exception.user.UserExistException
+import net.archasmiel.skufapi.api.response.ErrorResponse
+import net.archasmiel.skufapi.api.exception.auth.AuthenticationException
+import net.archasmiel.skufapi.api.exception.token.RsaKeyException
+import net.archasmiel.skufapi.api.exception.token.BearerTokenException
+import net.archasmiel.skufapi.api.exception.token.GoogleTokenException
+import net.archasmiel.skufapi.api.exception.token.JwtTokenException
+import net.archasmiel.skufapi.api.exception.user.GoogleUserExistException
+import net.archasmiel.skufapi.api.exception.user.ResourceNotFoundException
+import net.archasmiel.skufapi.api.exception.user.UserExistException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice

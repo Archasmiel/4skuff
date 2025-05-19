@@ -1,6 +1,6 @@
-package net.archasmiel.skufapi.domain.repository
+package net.archasmiel.skufapi.repository
 
-import net.archasmiel.skufapi.domain.model.User
+import net.archasmiel.skufapi.api.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 

@@ -1,8 +1,8 @@
-package net.archasmiel.skufapi.domain.model
+package net.archasmiel.skufapi.api.model
 
 import jakarta.persistence.*
 import net.archasmiel.skufapi.api.request.auth.RegisterRequest
-import net.archasmiel.skufapi.domain.enums.Role
+import net.archasmiel.skufapi.api.enums.Role
 import net.archasmiel.skufapi.util.UUIDGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority

@@ -1,7 +1,6 @@
-package net.archasmiel.skufapi.api.exception
+package net.archasmiel.skufapi.api.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import net.archasmiel.skufapi.api.response.ApiResponse
 
 @Schema(description = "Response for error")
 data class ErrorResponse(
