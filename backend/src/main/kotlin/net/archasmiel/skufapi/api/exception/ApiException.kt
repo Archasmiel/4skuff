@@ -1,4 +1,4 @@
-package net.archasmiel.skufapi.exception
+package net.archasmiel.skufapi.api.exception
 
 abstract class ApiException(
     val errorCode: String,

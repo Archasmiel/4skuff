@@ -1,4 +1,4 @@
-package net.archasmiel.skufapi.security
+package net.archasmiel.skufapi.config.security
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)

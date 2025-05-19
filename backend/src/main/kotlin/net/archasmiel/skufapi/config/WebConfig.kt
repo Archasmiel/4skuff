@@ -1,8 +1,8 @@
 package net.archasmiel.skufapi.config
 
 import lombok.RequiredArgsConstructor
-import net.archasmiel.skufapi.security.JwtAuthFilter
-import net.archasmiel.skufapi.security.SecurityArgumentResolver
+import net.archasmiel.skufapi.config.security.JwtAuthFilter
+import net.archasmiel.skufapi.config.security.SecurityArgumentResolver
 import net.archasmiel.skufapi.service.UserService
 import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory.disable
 import org.springframework.context.annotation.Bean
@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
@@ -32,23 +33,31 @@ class WebConfig(
     private val securityArgumentResolver: SecurityArgumentResolver
 ) : WebMvcConfigurer {
 
+    companion object {
+        val ROUTE_WHITELIST_MATCHERS = setOf(
+            "/api/auth/login",
+            "/api/auth/google",
+            "/api/auth/register")
+    }
+
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers.add(securityArgumentResolver)
     }
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http.csrf { it.disable() }
-            .cors { cors -> cors.configurationSource(corsConfigSource()) }
+        http.csrf {
+                it.disable()
+            }
             .addFilterBefore(
                 jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter::class.java)
+                UsernamePasswordAuthenticationFilter::class.java
+            )
             .authorizeHttpRequests {
                 it.requestMatchers(
-                    "/api/auth/login",
-                    "/api/auth/google",
-                    "/api/auth/register").permitAll()
-                    .anyRequest().authenticated()
+                    *ROUTE_WHITELIST_MATCHERS.toTypedArray()
+                ).permitAll()
+                .anyRequest().authenticated()
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -59,17 +68,12 @@ class WebConfig(
         return http.build()
     }
 
-    @Bean
-    fun corsConfigSource(): CorsConfigurationSource {
-        val config = CorsConfiguration()
-        config.allowedOrigins = listOf("http://localhost:3000")
-        config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        config.allowedHeaders = listOf("*")
-        config.allowCredentials = true
-
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", config)
-        return source
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOrigins("http://localhost:3000")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
     }
 
     @Bean

@@ -1,4 +1,4 @@
-package net.archasmiel.skufapi.domain.enums
+package net.archasmiel.skufapi.api.enums
 
 enum class Role {
     ROLE_USER,

@@ -1,9 +1,9 @@
 package net.archasmiel.skufapi.service
 
-import net.archasmiel.skufapi.domain.model.User
-import net.archasmiel.skufapi.domain.repository.UserRepository
-import net.archasmiel.skufapi.exception.user.ResourceNotFoundException
-import net.archasmiel.skufapi.exception.user.UserExistException
+import net.archasmiel.skufapi.api.model.User
+import net.archasmiel.skufapi.repository.UserRepository
+import net.archasmiel.skufapi.api.exception.user.ResourceNotFoundException
+import net.archasmiel.skufapi.api.exception.user.UserExistException
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 

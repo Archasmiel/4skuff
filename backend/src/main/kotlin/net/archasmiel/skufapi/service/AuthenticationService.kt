@@ -3,11 +3,11 @@ package net.archasmiel.skufapi.service
 import net.archasmiel.skufapi.api.request.auth.GoogleAuthRequest
 import net.archasmiel.skufapi.api.request.auth.LoginRequest
 import net.archasmiel.skufapi.api.response.auth.JwtAuthResponse
-import net.archasmiel.skufapi.exception.auth.AuthenticationException
-import net.archasmiel.skufapi.exception.token.GoogleTokenException
-import net.archasmiel.skufapi.exception.token.JwtTokenException
-import net.archasmiel.skufapi.exception.user.GoogleUserExistException
-import net.archasmiel.skufapi.exception.user.UserExistException
+import net.archasmiel.skufapi.api.exception.auth.AuthenticationException
+import net.archasmiel.skufapi.api.exception.token.GoogleTokenException
+import net.archasmiel.skufapi.api.exception.token.JwtTokenException
+import net.archasmiel.skufapi.api.exception.user.GoogleUserExistException
+import net.archasmiel.skufapi.api.exception.user.UserExistException
 import net.archasmiel.skufapi.util.GoogleTokenVerifier
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -23,7 +23,8 @@ class AuthenticationService(
     private val verifier: GoogleTokenVerifier
 ) {
 
-    @Throws(GoogleUserExistException::class,
+    @Throws(
+        GoogleUserExistException::class,
         AuthenticationException::class,
         UsernameNotFoundException::class,
         JwtTokenException::class,)
@@ -48,7 +49,8 @@ class AuthenticationService(
         return JwtAuthResponse(jwt)
     }
 
-    @Throws(GoogleTokenException::class,
+    @Throws(
+        GoogleTokenException::class,
         JwtTokenException::class,
         UserExistException::class)
     fun signIn(request: GoogleAuthRequest): JwtAuthResponse {

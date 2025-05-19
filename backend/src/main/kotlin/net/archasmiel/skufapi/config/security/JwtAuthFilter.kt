@@ -1,10 +1,11 @@
-package net.archasmiel.skufapi.security
+package net.archasmiel.skufapi.config.security
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import lombok.RequiredArgsConstructor
-import net.archasmiel.skufapi.exception.token.JwtTokenException
+import net.archasmiel.skufapi.config.WebConfig
+import net.archasmiel.skufapi.api.exception.token.JwtTokenException
 import net.archasmiel.skufapi.service.JwtService
 import net.archasmiel.skufapi.service.UserService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -25,11 +26,6 @@ class JwtAuthFilter(
     companion object {
         const val BEARER_PREFIX: String = "Bearer "
         const val HEADER_NAME: String = "Authorization"
-        private val ROUTE_WHITELIST = setOf(
-            "/api/auth/login",
-            "/api/auth/google",
-            "/api/auth/register"
-        )
     }
 
     override fun doFilterInternal(
@@ -83,7 +79,8 @@ class JwtAuthFilter(
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return ROUTE_WHITELIST.any { request.servletPath.contains(it) }
+        return WebConfig.ROUTE_WHITELIST_MATCHERS
+            .any { request.servletPath.contains(it) }
     }
 
 }

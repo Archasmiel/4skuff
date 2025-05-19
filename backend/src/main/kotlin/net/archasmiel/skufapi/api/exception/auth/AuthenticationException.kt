@@ -1,6 +1,6 @@
-package net.archasmiel.skufapi.exception.auth
+package net.archasmiel.skufapi.api.exception.auth
 
-import net.archasmiel.skufapi.exception.ApiException
+import net.archasmiel.skufapi.api.exception.ApiException
 
 class AuthenticationException(
     errorCode: String,

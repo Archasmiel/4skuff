@@ -1,6 +1,6 @@
-package net.archasmiel.skufapi.exception.user
+package net.archasmiel.skufapi.api.exception.user
 
-import net.archasmiel.skufapi.exception.ApiException
+import net.archasmiel.skufapi.api.exception.ApiException
 
 class GoogleUserExistException(
     usernameOrEmail: String,

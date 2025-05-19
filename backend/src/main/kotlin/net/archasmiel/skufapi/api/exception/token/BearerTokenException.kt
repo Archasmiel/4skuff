@@ -1,6 +1,6 @@
-package net.archasmiel.skufapi.exception.token
+package net.archasmiel.skufapi.api.exception.token
 
-import net.archasmiel.skufapi.exception.ApiException
+import net.archasmiel.skufapi.api.exception.ApiException
 
 class BearerTokenException(
     msg: String = "Bearer token error"

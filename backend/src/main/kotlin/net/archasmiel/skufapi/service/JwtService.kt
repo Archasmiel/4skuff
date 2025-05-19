@@ -1,8 +1,8 @@
 package net.archasmiel.skufapi.service
 
-import net.archasmiel.skufapi.domain.model.User
-import net.archasmiel.skufapi.exception.token.JwtTokenException
-import net.archasmiel.skufapi.exception.token.RsaKeyException
+import net.archasmiel.skufapi.api.model.User
+import net.archasmiel.skufapi.api.exception.token.JwtTokenException
+import net.archasmiel.skufapi.api.exception.token.RsaKeyException
 import org.jose4j.jws.AlgorithmIdentifiers
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
@@ -109,7 +109,7 @@ class JwtService(
                 .build()
                 .processToClaims(token)
         } catch (e: Exception) {
-            throw JwtTokenException("Could not generate token")
+            throw JwtTokenException("Could not extract claims")
         }
     }
 
