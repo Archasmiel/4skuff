@@ -27,8 +27,8 @@ class RegistrationService(
                 throw UserExistException(request.email, true)
         }
 
-        val user = User.fromRegisterUser(
-            request, passwordEncoder)
+        val password = passwordEncoder.encode(uuidGenerator.password())
+        val user = User.fromDefault(request.username, request.email, password)
 
         userService.create(user)
 
@@ -38,8 +38,9 @@ class RegistrationService(
 
     @Throws(JwtTokenException::class, UserExistException::class)
     fun signUp(googleEmail: String): JwtAuthResponse {
-        val user = User.fromGoogleEmail(
-            googleEmail, passwordEncoder, uuidGenerator)
+        val username = uuidGenerator.username()
+        val password = passwordEncoder.encode(uuidGenerator.password())
+        val user = User.fromDefault(username, googleEmail, password, googleUser = true)
 
         userService.create(user)
 

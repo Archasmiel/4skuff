@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import net.archasmiel.skufapi.api.request.ApiRequest
 
-@Schema(description = "Sign up request")
+@Schema(description = "Register request via username/email/password (no Google)")
 data class RegisterRequest(
     @field:Schema(description = "Username", example = "johndoe")
     @field:Size(min = 5, max = 50, message = "Username can be only 5-50 characters long")

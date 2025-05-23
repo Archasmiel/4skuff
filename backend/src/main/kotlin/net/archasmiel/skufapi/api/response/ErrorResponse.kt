@@ -7,6 +7,6 @@ data class ErrorResponse(
     @field:Schema(description = "Error code", example = "GOOGLE_AUTH_FAILED")
     val code: String,
 
-    @field:Schema(description = "Message string", example = "This error means...")
+    @field:Schema(description = "Message, representing user data", example = "Auth failed due to...")
     val message: String
 ) : ApiResponse

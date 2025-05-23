@@ -25,6 +25,14 @@ repositories {
 	mavenCentral()
 }
 
+val versions = mapOf(
+	Pair("jose4j", "0.9.6"),
+	Pair("dotenv", "4.0.0"),
+	Pair("gApiClient", "2.4.0"),
+	Pair("gAuthLib", "1.25.0"),
+	Pair("apiDocs", "2.8.8"),
+)
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
@@ -33,12 +41,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions["apiDocs"]}")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.bitbucket.b_c:jose4j:0.9.4")
-	implementation("me.paulschwarz:spring-dotenv:4.0.0")
-	implementation("com.google.api-client:google-api-client:2.4.0")
-	implementation("com.google.auth:google-auth-library-oauth2-http:1.25.0")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+	implementation("org.bitbucket.b_c:jose4j:${versions["jose4j"]}")
+	implementation("me.paulschwarz:spring-dotenv:${versions["dotenv"]}")
+	implementation("com.google.api-client:google-api-client:${versions["gApiClient"]}")
+	implementation("com.google.auth:google-auth-library-oauth2-http:${versions["gAuthLib"]}")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")

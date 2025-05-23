@@ -26,6 +26,12 @@ class JwtAuthFilter(
     companion object {
         const val BEARER_PREFIX: String = "Bearer "
         const val HEADER_NAME: String = "Authorization"
+        private val ROUTE_WHITELIST = setOf(
+            "/api/auth/login",
+            "/api/auth/google",
+            "/api/auth/register",
+            "swagger", "api-docs",
+        )
     }
 
     override fun doFilterInternal(
@@ -53,7 +59,7 @@ class JwtAuthFilter(
             }
 
             if (!jwtService.isTokenValid(jwt, userDetails)) {
-                throw JwtTokenException("Invalid token for user")
+                throw JwtTokenException("Invalid or expired token")
             }
 
             setAuthentication(userDetails, request)
@@ -79,8 +85,7 @@ class JwtAuthFilter(
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return WebConfig.ROUTE_WHITELIST_MATCHERS
-            .any { request.servletPath.contains(it) }
+        return ROUTE_WHITELIST.any { request.servletPath.contains(it) }
     }
 
 }
