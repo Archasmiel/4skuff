@@ -41,7 +41,7 @@ class UserService(
     fun hasUserWithEmail(email: String): Boolean =
         repository.existsByEmail(email)
 
-    fun findGoogleUser(email: String): User? =
+    fun findGoogleUserByEmail(email: String): User? =
         repository.findByEmailAndGoogleUser(email, true)
             .orElseGet { null }
 

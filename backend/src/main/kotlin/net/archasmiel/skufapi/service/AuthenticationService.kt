@@ -1,16 +1,15 @@
 package net.archasmiel.skufapi.service
 
-import net.archasmiel.skufapi.api.request.auth.GoogleAuthRequest
-import net.archasmiel.skufapi.api.request.auth.LoginRequest
-import net.archasmiel.skufapi.api.response.auth.JwtAuthResponse
 import net.archasmiel.skufapi.api.exception.auth.AuthenticationException
 import net.archasmiel.skufapi.api.exception.token.GoogleTokenException
 import net.archasmiel.skufapi.api.exception.token.JwtTokenException
 import net.archasmiel.skufapi.api.exception.user.GoogleUserExistException
 import net.archasmiel.skufapi.api.exception.user.UserExistException
+import net.archasmiel.skufapi.api.request.auth.GoogleAuthRequest
+import net.archasmiel.skufapi.api.request.auth.LoginRequest
+import net.archasmiel.skufapi.api.response.auth.JwtAuthResponse
 import net.archasmiel.skufapi.util.GoogleTokenVerifier
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.authentication.*
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
@@ -27,8 +26,13 @@ class AuthenticationService(
         GoogleUserExistException::class,
         AuthenticationException::class,
         UsernameNotFoundException::class,
-        JwtTokenException::class,)
+        JwtTokenException::class
+    )
     fun signIn(request: LoginRequest): JwtAuthResponse {
+        if (request.username.isBlank() || request.password.isBlank()) {
+            throw AuthenticationException("Username and password must not be empty")
+        }
+
         if (userService.hasGoogleUserWithUsername(request.username)) {
             throw GoogleUserExistException(request.username, false)
         }
@@ -36,30 +40,47 @@ class AuthenticationService(
         try {
             authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
-                    request.username,
+                    request.username.trim(),
                     request.password
                 )
             )
+        } catch (e: BadCredentialsException) {
+            throw AuthenticationException("Invalid username or password")
+        } catch (e: DisabledException) {
+            throw AuthenticationException("Account is disabled")
+        } catch (e: LockedException) {
+            throw AuthenticationException("Account is locked")
+        } catch (e: UsernameNotFoundException) {
+            throw UsernameNotFoundException("User not found: ${request.username}")
         } catch (e: Exception) {
-            throw AuthenticationException("AUTH_FAILED", e.localizedMessage)
+            throw AuthenticationException("Authentication failed: ${e.message}")
         }
 
-        val user = userService.userDetailsService.loadUserByUsername(request.username)
-        val jwt = jwtService.generateToken(user)
-        return JwtAuthResponse(jwt)
+        return try {
+            val user = userService.userDetailsService.loadUserByUsername(request.username)
+            val jwt = jwtService.generateToken(user)
+            JwtAuthResponse(jwt)
+        } catch (e: Exception) {
+            throw JwtTokenException("Token generation failed: ${e.message}")
+        }
     }
 
     @Throws(
         GoogleTokenException::class,
         JwtTokenException::class,
-        UserExistException::class)
+        UserExistException::class
+    )
     fun signIn(request: GoogleAuthRequest): JwtAuthResponse {
-        val email = verifier.extractToken(request.token).payload.email
+        val email = verifier.extractToken(request.token)
+            .takeIf { it.payload?.email != null }
+            ?.payload?.email
+            ?: throw GoogleTokenException("Invalid token: missing email")
 
-        val user = userService.findGoogleUser(email)
-            ?: return registrationService.signUp(email)
-
-        val jwt = jwtService.generateToken(user)
-        return JwtAuthResponse(jwt)
+        return userService.findGoogleUserByEmail(email)
+            ?.let { user ->
+                val jwt = jwtService.generateToken(user)
+                JwtAuthResponse(jwt)
+            }
+            ?: registrationService.signUp(email)
     }
 }

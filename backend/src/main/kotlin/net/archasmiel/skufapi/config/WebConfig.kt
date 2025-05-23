@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor
 import net.archasmiel.skufapi.config.security.JwtAuthFilter
 import net.archasmiel.skufapi.config.security.SecurityArgumentResolver
 import net.archasmiel.skufapi.service.UserService
-import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory.disable
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -17,9 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -33,11 +29,17 @@ class WebConfig(
     private val securityArgumentResolver: SecurityArgumentResolver
 ) : WebMvcConfigurer {
 
-    companion object {
-        val ROUTE_WHITELIST_MATCHERS = setOf(
+    private companion object {
+        val ROUTE_WHITELIST = setOf(
             "/api/auth/login",
             "/api/auth/google",
-            "/api/auth/register")
+            "/api/auth/register",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**",
+            )
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
@@ -55,7 +57,7 @@ class WebConfig(
             )
             .authorizeHttpRequests {
                 it.requestMatchers(
-                    *ROUTE_WHITELIST_MATCHERS.toTypedArray()
+                    *ROUTE_WHITELIST.toTypedArray()
                 ).permitAll()
                 .anyRequest().authenticated()
             }

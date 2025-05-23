@@ -1,13 +1,10 @@
 package net.archasmiel.skufapi.api.model
 
 import jakarta.persistence.*
-import net.archasmiel.skufapi.api.request.auth.RegisterRequest
 import net.archasmiel.skufapi.api.enums.Role
-import net.archasmiel.skufapi.util.UUIDGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
 @Table(name = "users")
@@ -25,7 +22,7 @@ data class User(
     val email: String,
 
     @Column(name = "password", nullable = false)
-    private val passWord: String,
+    val passWord: String,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -37,35 +34,23 @@ data class User(
 ) : UserDetails {
 
     companion object {
-        fun fromGoogleEmail(email: String,
-                            passwordEncoder: PasswordEncoder,
-                            uuidGenerator: UUIDGenerator
+       fun fromDefault(
+           username: String,
+           email: String,
+           passwordEncoded: String,
+           role: Role = Role.ROLE_USER,
+           googleUser: Boolean = false
         ): User {
             return User(
                 id = null,
-                userName = uuidGenerator.username(),
+                userName = username,
                 email = email,
-                passWord = passwordEncoder.encode(uuidGenerator.password()),
-                role = Role.ROLE_USER,
-                googleUser = true
-            )
-        }
-
-        fun fromRegisterUser(request: RegisterRequest,
-                             passwordEncoder: PasswordEncoder
-        ): User {
-            return User(
-                id = null,
-                userName = request.username,
-                email = request.email,
-                passWord = passwordEncoder.encode(request.password),
-                role = Role.ROLE_USER,
-                googleUser = false
+                passWord = passwordEncoded,
+                role = role,
+                googleUser = googleUser
             )
         }
     }
-
-
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return listOf(SimpleGrantedAuthority(role.name))

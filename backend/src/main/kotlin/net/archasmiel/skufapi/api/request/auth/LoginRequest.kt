@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import net.archasmiel.skufapi.api.request.ApiRequest
 
-@Schema(description = "Sign in request via standard credentials")
+@Schema(description = "Login request via username/password")
 data class LoginRequest(
-    @field:Schema(description = "Username or Email", example = "johndoe or john@example.com")
+    @field:Schema(description = "Username", example = "johndoe@example.com")
     @field:Size(min = 5, max = 50, message = "Username/email must be 5-50 characters long")
-    @field:NotBlank(message = "Username/email can't be empty")
+    @field:NotBlank(message = "Username can't be empty")
     val username: String,
 
     @field:Schema(description = "Password", example = "my_1secret1_password")
