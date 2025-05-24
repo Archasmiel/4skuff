@@ -19,21 +19,20 @@ class AuthenticationService(
     private val userService: UserService,
     private val jwtService: JwtService,
     private val authenticationManager: AuthenticationManager,
-    private val verifier: GoogleTokenVerifier
+    private val verifier: GoogleTokenVerifier,
 ) {
 
     @Throws(
         GoogleUserExistException::class,
         AuthenticationException::class,
         UsernameNotFoundException::class,
-        JwtTokenException::class
-    )
+        JwtTokenException::class)
     fun signIn(request: LoginRequest): JwtAuthResponse {
         if (request.username.isBlank() || request.password.isBlank()) {
             throw AuthenticationException("Username and password must not be empty")
         }
 
-        if (userService.hasGoogleUserWithUsername(request.username)) {
+        if (userService.existsByUsernameAndGoogleUser(request.username)) {
             throw GoogleUserExistException(request.username, false)
         }
 

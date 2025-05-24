@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import lombok.RequiredArgsConstructor
-import net.archasmiel.skufapi.config.WebConfig
 import net.archasmiel.skufapi.api.exception.token.JwtTokenException
 import net.archasmiel.skufapi.service.JwtService
 import net.archasmiel.skufapi.service.UserService
