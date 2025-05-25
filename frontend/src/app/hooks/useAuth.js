@@ -1,15 +1,13 @@
 import { useSelector } from 'react-redux';
 import TokenService from '../../features/auth/utils/TokenService';
 
-const useAuth = () => {
+export const useAuth = () => {
   const { token, user } = useSelector((state) => state.auth);
-  const isAuthenticated = !!token && TokenService.isTokenValid(token);
-  
+  const currentToken = token || TokenService.getToken();
+
   return {
-    isAuthenticated,
+    isAuthenticated: !!currentToken && TokenService.isTokenValid(currentToken),
     user,
-    token,
+    token: currentToken
   };
 };
-
-export default useAuth;
