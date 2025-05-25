@@ -1,51 +1,29 @@
-import AuthApiService from '../../../api/AuthApiService';
+import { authApiService } from '../../../api/AuthApiService';
 import TokenService from '../utils/TokenService';
 
-class AuthService {
+export class AuthService {
   static async login(credentials) {
-    try {
-      const response = await AuthApiService.login(credentials);
-      const { jwtToken } = response.data;
-      
-      if (!jwtToken) {
-        throw new Error('No token received from server');
-      }
-      
-      TokenService.setToken(jwtToken);
-      return TokenService.decodeToken(jwtToken);
-    } catch (error) {
-      throw error;
-    }
+    const { data } = await authApiService.login(credentials);
+    TokenService.setToken(data.jwtToken);
+    return data.jwtToken;
   }
 
   static async register(userData) {
-    try {
-      const response = await AuthApiService.register(userData);
-      const { jwtToken } = response.data;
-      
-      if (!jwtToken) {
-        throw new Error('No token received after registration');
-      }
-      
-      TokenService.setToken(jwtToken);
-      return TokenService.decodeToken(jwtToken);
-    } catch (error) {
-      throw error;
-    }
+    const { data } = await authApiService.register(userData);
+    TokenService.setToken(data.jwtToken);
+    return data.jwtToken;
   }
 
   static async logout() {
     try {
-      const token = TokenService.getToken();
-      if (token) {
-        await AuthApiService.logout(token);
-      }
+      await authApiService.logout();
+    } finally {
       TokenService.clearToken();
-    } catch (error) {
-      TokenService.clearToken();
-      throw error;
     }
   }
-}
 
-export default AuthService;
+  static async getMe() {
+    const { data } = await authApiService.getMe();
+    return data;
+  }
+}

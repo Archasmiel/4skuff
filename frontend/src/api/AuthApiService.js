@@ -1,4 +1,4 @@
-import ApiClient from './ApiClient';
+import { ApiClient } from './ApiClient';
 import { API_BASE_URL } from '../shared/constants/api';
 
 class AuthApiService {
@@ -6,21 +6,21 @@ class AuthApiService {
     this.apiClient = new ApiClient(API_BASE_URL);
   }
 
-  async login(credentials) {
+  login(credentials) {
     return this.apiClient.post('/auth/login', credentials);
   }
 
-  async register(userData) {
+  register(userData) {
     return this.apiClient.post('/auth/signup', userData);
   }
 
-  async logout(token) {
-    return this.apiClient.get('/auth/logout', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  logout() {
+    return this.apiClient.get('/auth/logout');
+  }
+
+  getMe() {
+    return this.apiClient.get('/auth/me');
   }
 }
 
-export default new AuthApiService();
+export const authApiService = new AuthApiService();

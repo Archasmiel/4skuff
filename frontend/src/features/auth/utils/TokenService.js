@@ -1,8 +1,8 @@
 import { jwtDecode } from 'jwt-decode';
 
-class TokenService {
+export default class TokenService {
   static getToken() {
-    return localStorage.getItem('token') || null;
+    return localStorage.getItem('token');
   }
 
   static setToken(token) {
@@ -13,20 +13,13 @@ class TokenService {
     localStorage.removeItem('token');
   }
 
-  static decodeToken(token) {
+  static isTokenValid(token = this.getToken()) {
+    if (!token) return false;
     try {
-      return jwtDecode(token);
-    } catch (error) {
-      console.error('Token decode error:', error);
-      return null;
+      const decoded = jwtDecode(token);
+      return decoded.exp > Date.now() / 1000;
+    } catch {
+      return false;
     }
   }
-
-  static isTokenValid(token) {
-    if (!token) return false;
-    const decoded = this.decodeToken(token);
-    return decoded?.exp > Date.now() / 1000;
-  }
 }
-
-export default TokenService;

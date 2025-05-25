@@ -1,49 +1,54 @@
 import { createSlice } from '@reduxjs/toolkit';
 import TokenService from '../utils/TokenService';
+import { loginThunk, registerThunk, logoutThunk, fetchUserDataThunk } from './authThunks';
 
 const initialState = {
   token: TokenService.getToken(),
   user: null,
   status: 'idle',
-  error: null,
+  error: null
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    clearAuthState: (state) => {
-      state.token = null;
-      state.user = null;
-      state.status = 'idle';
-      state.error = null;
-    },
+    clearAuthState: () => initialState
   },
-  extraReducers: (builders) => {
-    builders
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginThunk.fulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.status = 'succeeded';
+      })
+      .addCase(registerThunk.fulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.status = 'succeeded';
+      })
+      .addCase(fetchUserDataThunk.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.status = 'succeeded';
+      })
+      .addCase(logoutThunk.fulfilled, (state) => {
+        state.token = null;
+        state.user = null;
+      })
       .addMatcher(
         (action) => action.type.endsWith('/pending'),
         (state) => {
           state.status = 'loading';
-          state.error = null;
         }
       )
       .addMatcher(
-        (action) => action.type.endsWith('/fulfilled') && action.type.includes('auth'),
-        (state, action) => {
-          state.status = 'succeeded';
-          state.token = action.payload?.token || null;
-          state.user = action.payload?.user || null;
-        }
-      )
-      .addMatcher(
-        (action) => action.type.endsWith('/rejected') && action.type.includes('auth'),
+        (action) => action.type.endsWith('/rejected'),
         (state, action) => {
           state.status = 'failed';
           state.error = action.payload;
         }
       );
-  },
+  }
 });
 
 export const { clearAuthState } = authSlice.actions;

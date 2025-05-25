@@ -12,9 +12,13 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
       confirmPassword: '',
     },
     validationSchema: registrationValidationSchema,
-    onSubmit: (values) => {
-      onSubmit(values);
-    },
+    onSubmit: async (values, { setStatus }) => {
+      try {
+        await onSubmit(values);
+      } catch (error) {
+        setStatus(error.message);
+      }
+    }
   });
 
   return (
@@ -91,6 +95,9 @@ const RegistrationForm = ({ onSubmit, isLoading }) => {
           </Button>
         </Box>
       </form>
+      {formik.status && (
+        <ErrorText>{formik.status}</ErrorText>
+      )}
     </FormContainer>
   );
 };
